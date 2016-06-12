@@ -7,27 +7,28 @@ import (
 	"time"
 )
 
-type Webhook struct {
-	UUID        string
-	Description string
-	Url         string
-	SubjectType string `json:"subject_type"`
-	Subject     Repo
-	Active      bool
-	Created     time.Time `json:"created_at"`
+type WebHook struct {
+	Uuid         string    `json:"uuid"`
+	Description  string    `json:"description,omitempty"`
+	Url          string    `json:"url,omitempty"`
+	Subject_type string    `json:"-"`
+	Subject      Repo      `json:"-"`
+	Active       bool      `json:"active"`
+	Events       []string  `json:"events,omitempty"`
+	Created_at   time.Time `json:"-"`
 }
 
 type WebhookInfo struct {
 	Page
-	Values Webhook
+	Values []WebHook
 }
 
-type WebHookReq struct {
-	Description string            `json:"description"`
-	Url         string            `json:"url"`
-	Active      string            `json:"active"`
-	Events      map[string]string `json:"events"`
-}
+//type WebHookReq struct {
+//Description string   `json:"description"`
+//Url         string   `json:"url"`
+//Active      string   `json:"active"`
+//Events      []string `json:"events"`
+/*}*/
 
 var MISS_ARGS = errors.New("one or more requird param is missing")
 
@@ -38,53 +39,46 @@ func (this *Client) ListWebhooks(owner, slug string) (*WebhookInfo, error) {
 		return nil, MISS_ARGS
 	}
 
-	path := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%v/%v/hooks/", owner, slug)
-	if err := this.do("GET", path, nil, nil, &webhook); err != nil {
+	path := fmt.Sprintf("/repositories/%v/%v/hooks/", owner, slug)
+	if err := this.do("GET", path, nil, nil, "", &webhook); err != nil {
 		return nil, err
 	}
 
 	return webhook, nil
 }
 
-func NewWebhookJson(url, desc, active string, events map[string]string) ([]byte, error) {
-	req := WebHookReq{
+func NewWebhook(url, desc string, active bool, events []string) (*WebHook, error) {
+	req := WebHook{
 		Url:         url,
 		Description: desc,
 		Active:      active,
 		Events:      events,
 	}
 
-	if reqjson, err := json.Marshal(req); err != nil {
-		return nil, err
-	} else {
-		return reqjson, nil
+	if events == nil {
+		req.Events = []string{"repo:push", "issue:created", "issue:updated"}
 	}
+	return &req, nil
 }
 
 //Post json request to create a new webhook
-func (this *Client) Webhook(method, owner, slug, url, desc, active string,
-	events map[string]string) error {
+func (this *Client) CreateUpdateWebHook(method, owner, slug string, webHook *WebHook) error {
 
-	if owner == "" || slug == "" || url == "" {
-		return MISS_ARGS
-	}
-
-	reqjson, err := NewWebhookJson(url, desc, active, events)
+	reqjson, err := json.Marshal(*webHook)
 	if err != nil {
 		return err
 	}
 
-	path := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%v/%v/hooks", owner, slug)
-	this.do(method, path, nil, reqjson, nil)
-	return nil
+	path := fmt.Sprintf("/repositories/%v/%v/hooks/%v", owner, slug, webHook.Uuid)
+	return this.do(method, path, nil, nil, string(reqjson), webHook)
 }
 
-func (this *Client) DeleteWebhoook(owner, slug, uuid string) error {
-	if owner == "" || slug == "" || uuid == "" {
+func (this *Client) GetDeleteWebHook(method, owner, slug string, webHook *WebHook) error {
+	if owner == "" || slug == "" {
 		return MISS_ARGS
 	}
 
-	path := fmt.Sprintf("https://api.bitbucket.org/2.0/repositories/%v/%v/hooks/%v", owner, slug, uuid)
-	this.do("DELETE", path, nil, nil, nil)
+	path := fmt.Sprintf("/repositories/%v/%v/hooks/%v", owner, slug, webHook.Uuid)
+	this.do(method, path, nil, nil, "", webHook)
 	return nil
 }

@@ -73,7 +73,7 @@ func (this *Client) ListRepos(owner string) (*Repos, error) {
 
 	path := "/repositories/" + owner
 
-	if err := this.do("GET", path, nil, nil, &repos); err != nil {
+	if err := this.do("GET", path, nil, nil, "", &repos); err != nil {
 		return nil, err
 	}
 
@@ -87,7 +87,7 @@ func (this *Client) RepoInfo(owner, slug string) (*Repo, error) {
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v", owner, slug)
-	if err := this.do("GET", path, nil, nil, &repo); err != nil {
+	if err := this.do("GET", path, nil, nil, "", &repo); err != nil {
 		return nil, err
 	}
 
@@ -101,7 +101,7 @@ func (this *Client) Tags(owner, slug string) (*TagsInfo, error) {
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v/refs/tags", owner, slug)
-	if err := this.do("GET", path, nil, nil, &tags); err != nil {
+	if err := this.do("GET", path, nil, nil, "", &tags); err != nil {
 		return nil, err
 	}
 
@@ -115,7 +115,7 @@ func (this *Client) Branches(owner, slug string) (*BranchInfo, error) {
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v/refs/branches", owner, slug)
-	if err := this.do("GET", path, nil, nil, &branches); err != nil {
+	if err := this.do("GET", path, nil, nil, "", &branches); err != nil {
 		return nil, err
 	}
 
@@ -129,7 +129,7 @@ func (this *Client) Forks(owner, slug string) (*ForkInfo, error) {
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v/forks", owner, slug)
-	if err := this.do("GET", path, nil, nil, &forks); err != nil {
+	if err := this.do("GET", path, nil, nil, "", &forks); err != nil {
 		return nil, err
 	}
 

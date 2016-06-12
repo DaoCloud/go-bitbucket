@@ -1,12 +1,12 @@
 package bitbucket_v2
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/drone/go-bitbucket/oauth1"
 )
@@ -45,13 +45,13 @@ var (
 // the exception overriding for mock unit testing.
 var DefaultClient = http.DefaultClient
 
-func (c *Client) do(method string, path string, params url.Values, values interface{}, v interface{}) error {
+func (c *Client) do(method string, path string, params url.Values, values url.Values, jsonbody string, v interface{}) error {
 
 	// if this is the guest client then we don't need
 	// to sign the request ... we will execute just
 	// a simple http request.
 	if c == Guest {
-		return c.guest(method, path, params, values, v)
+		return c.guest(method, path, params, values, jsonbody, v)
 	}
 
 	// create the client
@@ -74,31 +74,14 @@ func (c *Client) do(method string, path string, params url.Values, values interf
 	token := oauth1.NewAccessToken(c.AccessToken, c.TokenSecret, nil)
 
 	// create the request
-	req := &http.Request{
-		URL:        uri,
-		Method:     method,
-		ProtoMajor: 1,
-		ProtoMinor: 1,
-		Close:      true,
+	req, err := http.NewRequest(method, uri.String(), strings.NewReader(jsonbody))
+
+	if jsonbody != "" {
+		req.Header.Add("Content-Type", "application/json")
 	}
 
 	if values != nil {
-		var value string
-		if v, ok := values.(url.Values); ok {
-			value = v.Encode()
-
-			// add the Form data to the request
-			// (we'll need this in order to sign the request)
-			req.Form = v
-
-		} else if v, ok := values.(string); ok {
-			value = v
-		} else {
-			return ErrWrongParamType
-		}
-		body := []byte(value)
-		buf := bytes.NewBuffer(body)
-		req.Body = ioutil.NopCloser(buf)
+		req.Form = values
 	}
 
 	// sign the request
@@ -139,7 +122,7 @@ func (c *Client) do(method string, path string, params url.Values, values interf
 	return nil
 }
 
-func (c *Client) guest(method string, path string, params url.Values, values interface{}, v interface{}) error {
+func (c *Client) guest(method string, path string, params url.Values, values url.Values, jsonbody string, v interface{}) error {
 
 	// create the URI
 	uri, err := url.Parse(APIURL + path)
@@ -152,28 +135,14 @@ func (c *Client) guest(method string, path string, params url.Values, values int
 	}
 
 	// create the request
-	req := &http.Request{
-		URL:        uri,
-		Method:     method,
-		ProtoMajor: 1,
-		ProtoMinor: 1,
-		Close:      true,
+	req, err := http.NewRequest(method, uri.String(), strings.NewReader(jsonbody))
+
+	if jsonbody != "" {
+		req.Header.Add("Content-Type", "application/json")
 	}
 
-	// add the Form values to the body
 	if values != nil {
-
-		var value string
-		if v, ok := values.(url.Values); ok {
-			value = v.Encode()
-		} else if v, ok := values.(string); ok {
-			value = v
-		} else {
-			return ErrWrongParamType
-		}
-		body := []byte(value)
-		buf := bytes.NewBuffer(body)
-		req.Body = ioutil.NopCloser(buf)
+		req.Form = values
 	}
 
 	// make the request using the default http client
