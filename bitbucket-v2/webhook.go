@@ -22,19 +22,12 @@ type WebHook struct {
 
 type WebhookInfo struct {
 	Page
-	Values []WebHook
+	Values []*WebHook
 }
-
-//type WebHookReq struct {
-//Description string   `json:"description"`
-//Url         string   `json:"url"`
-//Active      string   `json:"active"`
-//Events      []string `json:"events"`
-/*}*/
 
 var MISS_ARGS = errors.New("one or more requird param is missing")
 
-func (this *Client) ListWebhooks(owner, slug string, index int) (*WebhookInfo, error) {
+func (c *Client) ListWebhooks(owner, slug string, index int) (*WebhookInfo, error) {
 	webhook := &WebhookInfo{}
 
 	if owner == "" || slug == "" {
@@ -44,7 +37,7 @@ func (this *Client) ListWebhooks(owner, slug string, index int) (*WebhookInfo, e
 	path := fmt.Sprintf("/repositories/%v/%v/hooks", owner, slug)
 	params := url.Values{}
 	params.Add("page", strconv.Itoa(index))
-	if err := this.do("GET", path, params, nil, "", &webhook); err != nil {
+	if err := c.do("GET", path, params, nil, "", &webhook); err != nil {
 		return nil, err
 	}
 
@@ -66,7 +59,7 @@ func NewWebhook(url, desc string, active bool, events []string) (*WebHook, error
 }
 
 //Post json request to create a new webhook
-func (this *Client) CreateUpdateWebHook(method, owner, slug string, webHook *WebHook) error {
+func (c *Client) CreateUpdateWebHook(method, owner, slug string, webHook *WebHook) error {
 
 	reqjson, err := json.Marshal(*webHook)
 	if err != nil {
@@ -74,7 +67,7 @@ func (this *Client) CreateUpdateWebHook(method, owner, slug string, webHook *Web
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v/hooks/%v", owner, slug, webHook.Uuid)
-	return this.do(method, path, nil, nil, string(reqjson), webHook)
+	return c.do(method, path, nil, nil, string(reqjson), webHook)
 }
 
 func (this *Client) GetDeleteWebHook(method, owner, slug string, webHook *WebHook) error {

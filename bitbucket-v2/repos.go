@@ -29,23 +29,23 @@ type Repo struct {
 	Updated     time.Time `json:"updated_on"`
 	Size        int64     `json:"size"`
 	Type        string    `json:"type"`
-	IsPrivate   bool      `json:"is_private"`
+	Private     bool      `json:"is_private"`
 	Description string    `json:"description"`
 }
 
 type TagsInfo struct {
 	Page
-	Values []TargetValue `json:"values"`
+	Values []*TargetValue `json:"values"`
 }
 
 type BranchInfo struct {
 	Page
-	Values []TargetValue `json:"values"`
+	Values []*TargetValue `json:"values"`
 }
 
 type ForkInfo struct {
 	Page
-	Values []Repo `json:"values"`
+	Values []*Repo `json:"values"`
 }
 
 type TargetValue struct {
@@ -64,14 +64,14 @@ type Refs struct {
 }
 
 // Gets the repositories owned by the individual or team account.
-func (this *Client) ListRepos(owner string, index int) (*Repos, error) {
+func (c *Client) ListRepos(owner string, index int) (*Repos, error) {
 	repos := Repos{}
 	if owner == "" {
 		return nil, nil
 	}
 
 	if owner == "self" {
-		client_ng := bitbucket.New(this.AccessToken, this.ConsumerKey, this.ConsumerSecret, this.TokenSecret)
+		client_ng := bitbucket.New(c.AccessToken, c.ConsumerKey, c.ConsumerSecret, c.TokenSecret)
 		if user, err := client_ng.Users.Current(); err != nil {
 			return nil, err
 		} else {
@@ -83,28 +83,28 @@ func (this *Client) ListRepos(owner string, index int) (*Repos, error) {
 	path := fmt.Sprintf("/repositories/%v", owner)
 	params := url.Values{}
 	params.Add("page", strconv.Itoa(index))
-	if err := this.do("GET", path, params, nil, "", &repos); err != nil {
+	if err := c.do("GET", path, params, nil, "", &repos); err != nil {
 		return nil, err
 	}
 
 	return &repos, nil
 }
 
-func (this *Client) RepoInfo(owner, slug string) (*Repo, error) {
+func (c *Client) RepoInfo(owner, slug string) (*Repo, error) {
 	repo := Repo{}
 	if owner == "" || slug == "" {
 		return nil, nil
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v", owner, slug)
-	if err := this.do("GET", path, nil, nil, "", &repo); err != nil {
+	if err := c.do("GET", path, nil, nil, "", &repo); err != nil {
 		return nil, err
 	}
 
 	return &repo, nil
 }
 
-func (this *Client) Tags(owner, slug string, index int) (*TagsInfo, error) {
+func (c *Client) Tags(owner, slug string, index int) (*TagsInfo, error) {
 	tags := TagsInfo{}
 	if owner == "" || slug == "" {
 		return nil, nil
@@ -113,14 +113,14 @@ func (this *Client) Tags(owner, slug string, index int) (*TagsInfo, error) {
 	path := fmt.Sprintf("/repositories/%v/%v/refs/tags", owner, slug)
 	params := url.Values{}
 	params.Add("page", strconv.Itoa(index))
-	if err := this.do("GET", path, params, nil, "", &tags); err != nil {
+	if err := c.do("GET", path, params, nil, "", &tags); err != nil {
 		return nil, err
 	}
 
 	return &tags, nil
 }
 
-func (this *Client) Branches(owner, slug string, index int) (*BranchInfo, error) {
+func (c *Client) Branches(owner, slug string, index int) (*BranchInfo, error) {
 	branches := BranchInfo{}
 	if owner == "" || slug == "" {
 		return nil, nil
@@ -129,14 +129,14 @@ func (this *Client) Branches(owner, slug string, index int) (*BranchInfo, error)
 	path := fmt.Sprintf("/repositories/%v/%v/refs/branches", owner, slug)
 	params := url.Values{}
 	params.Add("page", strconv.Itoa(index))
-	if err := this.do("GET", path, params, nil, "", &branches); err != nil {
+	if err := c.do("GET", path, params, nil, "", &branches); err != nil {
 		return nil, err
 	}
 
 	return &branches, nil
 }
 
-func (this *Client) Forks(owner, slug string, index int) (*ForkInfo, error) {
+func (c *Client) Forks(owner, slug string, index int) (*ForkInfo, error) {
 	forks := ForkInfo{}
 	if owner == "" || slug == "" {
 		return nil, nil
@@ -145,7 +145,7 @@ func (this *Client) Forks(owner, slug string, index int) (*ForkInfo, error) {
 	path := fmt.Sprintf("/repositories/%v/%v/forks", owner, slug)
 	params := url.Values{}
 	params.Add("page", strconv.Itoa(index))
-	if err := this.do("GET", path, params, nil, "", &forks); err != nil {
+	if err := c.do("GET", path, params, nil, "", &forks); err != nil {
 		return nil, err
 	}
 
