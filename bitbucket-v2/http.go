@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/xuzhenglun/go-bitbucket/oauth1"
+	"github.com/DaoCloud/go-bitbucket/oauth1"
 )
 
 const (

@@ -3,7 +3,7 @@ package bitbucket_v2
 import (
 	"errors"
 
-	"github.com/xuzhenglun/go-bitbucket/bitbucket"
+	"github.com/DaoCloud/go-bitbucket/bitbucket"
 )
 
 var (

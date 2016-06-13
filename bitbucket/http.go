@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/drone/go-bitbucket/oauth1"
+	"github.com/DaoCloud/go-bitbucket/oauth1"
 )
 
 var (

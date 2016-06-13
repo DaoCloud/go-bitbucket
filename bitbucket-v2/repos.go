@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/drone/go-bitbucket/bitbucket"
+	"github.com/DaoCloud/go-bitbucket/bitbucket"
 )
 
 type Repos struct {
