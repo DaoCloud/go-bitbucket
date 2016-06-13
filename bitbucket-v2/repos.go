@@ -2,7 +2,11 @@ package bitbucket_v2
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 	"time"
+
+	"github.com/drone/go-bitbucket/bitbucket"
 )
 
 type Repos struct {
@@ -11,28 +15,23 @@ type Repos struct {
 }
 
 type Repo struct {
-	Scm        string    `json:"scm"`
-	Website    string    `json:"website"`
-	HasWike    bool      `json:"has_wiki"`
-	Name       string    `json:"name"`
-	ForkPolicy string    `json:"fork_policy"`
-	UUID       string    `json:"uuid"`
-	Language   string    `json:"language"`
-	Created    time.Time `json:"created_on"`
-	FullName   string    `json:"full_name"`
-	HasIssues  bool      `json:"has_issues"`
-	//Owner       User      `json:"owner"`
+	Scm         string    `json:"scm"`
+	Website     string    `json:"website"`
+	HasWike     bool      `json:"has_wiki"`
+	Name        string    `json:"name"`
+	ForkPolicy  string    `json:"fork_policy"`
+	UUID        string    `json:"uuid"`
+	Language    string    `json:"language"`
+	Created     time.Time `json:"created_on"`
+	FullName    string    `json:"full_name"`
+	HasIssues   bool      `json:"has_issues"`
+	Owner       User      `json:"owner"`
 	Updated     time.Time `json:"updated_on"`
 	Size        int64     `json:"size"`
 	Type        string    `json:"type"`
 	IsPrivate   bool      `json:"is_private"`
 	Description string    `json:"description"`
 }
-
-/*type RepoInfo struct {*/
-//Page
-//Values []TargetValue `json:"values"`
-/*}*/
 
 type TagsInfo struct {
 	Page
@@ -57,23 +56,34 @@ type TargetValue struct {
 }
 
 type Refs struct {
-	Hash string `json:"hash"`
-	//Author  User      `json:"author"`
-	Date    time.Time `json:"date"`
-	Message string    `json:"message"`
-	Type    string    `json:"type"`
+	Hash    string     `json:"hash"`
+	Author  AutherType `json:"author"`
+	Date    time.Time  `json:"date"`
+	Message string     `json:"message"`
+	Type    string     `json:"type"`
 }
 
 // Gets the repositories owned by the individual or team account.
-func (this *Client) ListRepos(owner string) (*Repos, error) {
+func (this *Client) ListRepos(owner string, index int) (*Repos, error) {
 	repos := Repos{}
 	if owner == "" {
 		return nil, nil
 	}
 
-	path := "/repositories/" + owner
+	if owner == "self" {
+		client_ng := bitbucket.New(this.AccessToken, this.ConsumerKey, this.ConsumerSecret, this.TokenSecret)
+		if user, err := client_ng.Users.Current(); err != nil {
+			return nil, err
+		} else {
+			owner = user.User.Username
+		}
 
-	if err := this.do("GET", path, nil, nil, "", &repos); err != nil {
+	}
+
+	path := fmt.Sprintf("/repositories/%v", owner)
+	params := url.Values{}
+	params.Add("page", strconv.Itoa(index))
+	if err := this.do("GET", path, params, nil, "", &repos); err != nil {
 		return nil, err
 	}
 
@@ -94,42 +104,48 @@ func (this *Client) RepoInfo(owner, slug string) (*Repo, error) {
 	return &repo, nil
 }
 
-func (this *Client) Tags(owner, slug string) (*TagsInfo, error) {
+func (this *Client) Tags(owner, slug string, index int) (*TagsInfo, error) {
 	tags := TagsInfo{}
 	if owner == "" || slug == "" {
 		return nil, nil
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v/refs/tags", owner, slug)
-	if err := this.do("GET", path, nil, nil, "", &tags); err != nil {
+	params := url.Values{}
+	params.Add("page", strconv.Itoa(index))
+	if err := this.do("GET", path, params, nil, "", &tags); err != nil {
 		return nil, err
 	}
 
 	return &tags, nil
 }
 
-func (this *Client) Branches(owner, slug string) (*BranchInfo, error) {
+func (this *Client) Branches(owner, slug string, index int) (*BranchInfo, error) {
 	branches := BranchInfo{}
 	if owner == "" || slug == "" {
 		return nil, nil
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v/refs/branches", owner, slug)
-	if err := this.do("GET", path, nil, nil, "", &branches); err != nil {
+	params := url.Values{}
+	params.Add("page", strconv.Itoa(index))
+	if err := this.do("GET", path, params, nil, "", &branches); err != nil {
 		return nil, err
 	}
 
 	return &branches, nil
 }
 
-func (this *Client) Forks(owner, slug string) (*ForkInfo, error) {
+func (this *Client) Forks(owner, slug string, index int) (*ForkInfo, error) {
 	forks := ForkInfo{}
 	if owner == "" || slug == "" {
 		return nil, nil
 	}
 
 	path := fmt.Sprintf("/repositories/%v/%v/forks", owner, slug)
-	if err := this.do("GET", path, nil, nil, "", &forks); err != nil {
+	params := url.Values{}
+	params.Add("page", strconv.Itoa(index))
+	if err := this.do("GET", path, params, nil, "", &forks); err != nil {
 		return nil, err
 	}
 

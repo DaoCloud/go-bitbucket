@@ -8,9 +8,10 @@ var client = New("DmuycxS3kZ7xCsg5Uw", "VzSv8YSYUsEfZEkPu3GQ9y7jfbMYScxm",
 func Test_ListRepos(t *testing.T) {
 
 	// LIST of repositories
-	repos, err := client.ListRepos("xuzhenglun")
+	repos, err := client.ListRepos("xuzhenglun", 1)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if len(repos.Values) != 4 {
@@ -23,6 +24,7 @@ func Test_RepoInfo(t *testing.T) {
 	repo, err := client.RepoInfo("xuzhenglun", "test2")
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if repo.Scm != "git" {
@@ -31,9 +33,10 @@ func Test_RepoInfo(t *testing.T) {
 }
 
 func Test_Tags(t *testing.T) {
-	tags, err := client.Tags("xuzhenglun", "test2")
+	tags, err := client.Tags("xuzhenglun", "test2", 1)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if len(tags.Values) != 2 {
@@ -42,9 +45,10 @@ func Test_Tags(t *testing.T) {
 }
 
 func Test_Branch(t *testing.T) {
-	branches, err := client.Branches("xuzhenglun", "test2")
+	branches, err := client.Branches("xuzhenglun", "test2", 1)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if len(branches.Values) != 2 {
@@ -53,10 +57,11 @@ func Test_Branch(t *testing.T) {
 }
 
 func Test_Forks(t *testing.T) {
-	forks, err := client.Forks("xuzhenglun", "test2")
+	forks, err := client.Forks("xuzhenglun", "test2", 1)
 
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
 	if len(forks.Values) != 1 {

@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -32,15 +34,17 @@ type WebhookInfo struct {
 
 var MISS_ARGS = errors.New("one or more requird param is missing")
 
-func (this *Client) ListWebhooks(owner, slug string) (*WebhookInfo, error) {
+func (this *Client) ListWebhooks(owner, slug string, index int) (*WebhookInfo, error) {
 	webhook := &WebhookInfo{}
 
 	if owner == "" || slug == "" {
 		return nil, MISS_ARGS
 	}
 
-	path := fmt.Sprintf("/repositories/%v/%v/hooks/", owner, slug)
-	if err := this.do("GET", path, nil, nil, "", &webhook); err != nil {
+	path := fmt.Sprintf("/repositories/%v/%v/hooks", owner, slug)
+	params := url.Values{}
+	params.Add("page", strconv.Itoa(index))
+	if err := this.do("GET", path, params, nil, "", &webhook); err != nil {
 		return nil, err
 	}
 

@@ -43,5 +43,15 @@ func Test_Webhook_CURD(T *testing.T) {
 		T.Error(err)
 		return
 	}
+}
 
+func Test_ListWebhooks(T *testing.T) {
+	webhooks, err := client.ListWebhooks("xuzhenglun", "test2", 1)
+	if err != nil {
+		T.Error(err)
+		return
+	}
+	if len(webhooks.Values) == 0 {
+		T.Error("want more, only zero")
+	}
 }

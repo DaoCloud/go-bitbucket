@@ -2,6 +2,8 @@ package bitbucket_v2
 
 import (
 	"errors"
+
+	"github.com/xuzhenglun/go-bitbucket/bitbucket"
 )
 
 var (
@@ -46,3 +48,7 @@ type Client struct {
 // Guest Client that can be used to access
 // public APIs that do not require authentication.
 var Guest = New("", "", "", "")
+
+func UpgradeClient(c *bitbucket.Client) *Client {
+	return New(c.ConsumerKey, c.ConsumerSecret, c.AccessToken, c.TokenSecret)
+}
