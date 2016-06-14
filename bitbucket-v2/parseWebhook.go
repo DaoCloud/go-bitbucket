@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type PushHook struct {
+type RepoHook struct {
 	Push       PushType
 	Actor      User
 	Repository Repo
@@ -65,12 +65,14 @@ const (
 	PR_STATE_DECLIEND PullRequestState = "DECLIEND"
 )
 
-func ParseRepoHook(payload []byte) (hook *PushHook, err error) {
-	err = json.Unmarshal(payload, hook)
-	return
+func ParseRepoHook(payload []byte) (*RepoHook, error) {
+	hook := &RepoHook{}
+	err := json.Unmarshal(payload, hook)
+	return hook, err
 }
 
-func ParsePRHook(payload []byte) (hook *PullRequestHook, err error) {
-	err = json.Unmarshal(payload, hook)
-	return
+func ParsePRHook(payload []byte) (*PullRequestHook, error) {
+	hook := &PullRequestHook{}
+	err := json.Unmarshal(payload, hook)
+	return hook, err
 }
