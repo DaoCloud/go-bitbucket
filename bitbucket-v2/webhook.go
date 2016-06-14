@@ -53,7 +53,7 @@ func NewWebhook(url, desc string, active bool, events []string) (*WebHook, error
 	}
 
 	if events == nil {
-		req.Events = []string{"repo:push", "issue:created", "issue:updated"}
+		req.Events = []string{"repo:push", "pullrequest:fulfilled", "pullrequest:created", "pullrequest:updated"}
 	}
 	return &req, nil
 }
@@ -78,4 +78,20 @@ func (this *Client) GetDeleteWebHook(method, owner, slug string, webHook *WebHoo
 	path := fmt.Sprintf("/repositories/%v/%v/hooks/%v", owner, slug, webHook.Uuid)
 	this.do(method, path, nil, nil, "", webHook)
 	return nil
+}
+
+func (c *Client) GetWebHook(owner, slug string, webhook *WebHook) error {
+	return c.GetDeleteWebHook("GET", owner, slug, webhook)
+}
+
+func (c *Client) DeleteWebHook(owner, slug string, webhook *WebHook) error {
+	return c.GetDeleteWebHook("DELETE", owner, slug, webhook)
+}
+
+func (c *Client) CreateWebHook(owner, slug string, webhook *WebHook) error {
+	return c.CreateUpdateWebHook("POST", owner, slug, webhook)
+}
+
+func (c *Client) UpdateWebHook(owner, slug string, webhook *WebHook) error {
+	return c.CreateUpdateWebHook("PUT", owner, slug, webhook)
 }

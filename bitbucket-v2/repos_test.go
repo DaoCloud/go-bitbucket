@@ -14,7 +14,7 @@ func Test_ListRepos(t *testing.T) {
 		return
 	}
 
-	if len(repos.Values) != 4 {
+	if len(repos.Values) == 0 {
 		t.Errorf("List of /user repositories returned empty set")
 	}
 }
