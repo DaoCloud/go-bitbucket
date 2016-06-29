@@ -11,7 +11,7 @@ import (
 
 type Repos struct {
 	Page
-	Values []Repo
+	Values []*Repo
 }
 
 type Repo struct {
@@ -31,6 +31,12 @@ type Repo struct {
 	Type        string    `json:"type"`
 	Private     bool      `json:"is_private"`
 	Description string    `json:"description"`
+	Links       struct {
+		Clone []struct {
+			Href string `json:"href"`
+			Name string `json:"name"`
+		} `json:"clone"`
+	} `json:"links"`
 }
 
 type TagsInfo struct {

@@ -9,6 +9,11 @@ type User struct {
 	UUID        string    `json:"uuid"`
 	Type        string    `json:"type"`
 	Created     time.Time `json:"created_on"`
+	Links       struct {
+		Avatar struct {
+			Href string `json:"href"`
+		} `json:"avatar"`
+	} `json:"links"`
 }
 
 type AutherType struct {
