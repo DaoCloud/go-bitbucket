@@ -77,13 +77,12 @@ func (c *Client) ListRepos(owner string, index int) (*Repos, error) {
 	}
 
 	if owner == "self" {
-		client_ng := bitbucket.New(c.AccessToken, c.ConsumerKey, c.ConsumerSecret, c.TokenSecret)
+		client_ng := bitbucket.New(c.ConsumerKey, c.ConsumerSecret, c.AccessToken, c.TokenSecret)
 		if user, err := client_ng.Users.Current(); err != nil {
 			return nil, err
 		} else {
 			owner = user.User.Username
 		}
-
 	}
 
 	path := fmt.Sprintf("/repositories/%v", owner)
