@@ -60,6 +60,7 @@ func (c *Client) do(method string, path string, params url.Values, values url.Va
 		ConsumerSecret: c.ConsumerSecret,
 	}
 
+	path = strings.ToLower(path)
 	// create the URI
 	uri, err := url.Parse(APIURL + path)
 	if err != nil {
@@ -125,6 +126,7 @@ func (c *Client) do(method string, path string, params url.Values, values url.Va
 func (c *Client) guest(method string, path string, params url.Values, values url.Values, jsonbody string, v interface{}) error {
 
 	// create the URI
+	path = strings.ToLower(path)
 	uri, err := url.Parse(APIURL + path)
 	if err != nil {
 		return err

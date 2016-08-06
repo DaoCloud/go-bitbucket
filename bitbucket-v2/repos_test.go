@@ -21,7 +21,7 @@ func Test_ListRepos(t *testing.T) {
 
 func Test_RepoInfo(t *testing.T) {
 	// FIND the named repo
-	repo, err := client.RepoInfo("xuzhenglun", "test2")
+	repo, err := client.RepoInfo("xuzhenglun", "Test2")
 	if err != nil {
 		t.Error(err)
 		return
@@ -33,7 +33,7 @@ func Test_RepoInfo(t *testing.T) {
 }
 
 func Test_Tags(t *testing.T) {
-	tags, err := client.Tags("xuzhenglun", "test2", 1)
+	tags, err := client.Tags("xuzhenglun", "Test2", 1)
 	if err != nil {
 		t.Error(err)
 		return
@@ -45,7 +45,7 @@ func Test_Tags(t *testing.T) {
 }
 
 func Test_Branch(t *testing.T) {
-	branches, err := client.Branches("xuzhenglun", "test2", 1)
+	branches, err := client.Branches("xuzhenglun", "Test2", 1)
 	if err != nil {
 		t.Error(err)
 		return
@@ -57,7 +57,7 @@ func Test_Branch(t *testing.T) {
 }
 
 func Test_Forks(t *testing.T) {
-	forks, err := client.Forks("xuzhenglun", "test2", 1)
+	forks, err := client.Forks("xuzhenglun", "Test2", 1)
 
 	if err != nil {
 		t.Error(err)
