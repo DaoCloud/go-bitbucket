@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/DaoCloud/go-bitbucket/bitbucket"
@@ -109,20 +110,37 @@ func (c *Client) RepoInfo(owner, slug string) (*Repo, error) {
 	return &repo, nil
 }
 
-func (c *Client) Tags(owner, slug string, index int) (*TagsInfo, error) {
-	tags := TagsInfo{}
+func (c *Client) Tags(owner, slug string, index int) ([]*TargetValue, error) {
+	ab := []*TargetValue{}
 	if owner == "" || slug == "" {
 		return nil, nil
 	}
-
 	path := fmt.Sprintf("/repositories/%v/%v/refs/tags", owner, slug)
 	params := url.Values{}
-	params.Add("page", strconv.Itoa(index))
-	if err := c.do("GET", path, params, nil, "", &tags); err != nil {
-		return nil, err
+
+	if index > 0 {
+		params.Set("page", strconv.Itoa(index))
 	}
 
-	return &tags, nil
+	for {
+		tags := TagsInfo{}
+		if err := c.do("GET", path, params, nil, "", &tags); err != nil {
+			return nil, err
+		}
+		ab = append(ab, tags.Values...)
+
+		if tags.Next == "" || index > 0 {
+			return ab, nil
+		}
+
+		u, err := url.Parse(tags.Next)
+		if err != nil {
+			return nil, err
+		}
+
+		params.Set("page", u.Query().Get("page"))
+		path = strings.Replace(u.Path, "/2.0", "", 1)
+	}
 }
 
 func (c *Client) Branches(owner, slug string, index int) (*BranchInfo, error) {
