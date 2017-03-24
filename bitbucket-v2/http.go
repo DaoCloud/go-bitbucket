@@ -16,6 +16,10 @@ const (
 )
 
 var (
+	APIProxyURL = ""
+)
+
+var (
 	// Returned if the specified resource does not exist.
 	ErrNotFound = errors.New("Not Found")
 
@@ -91,6 +95,11 @@ func (c *Client) do(method string, path string, params url.Values, values url.Va
 	}
 
 	// make the request using the default http client
+	if APIProxyURL != "" {
+		req.Host = APIProxyURL
+		req.URL.Host = APIProxyURL
+	}
+
 	resp, err := DefaultClient.Do(req)
 	if err != nil {
 		return err
@@ -148,6 +157,11 @@ func (c *Client) guest(method string, path string, params url.Values, values url
 	}
 
 	// make the request using the default http client
+	if APIProxyURL != "" {
+		req.Host = APIProxyURL
+		req.URL.Host = APIProxyURL
+	}
+
 	resp, err := DefaultClient.Do(req)
 	if err != nil {
 		return err
