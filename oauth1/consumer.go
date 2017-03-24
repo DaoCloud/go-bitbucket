@@ -19,6 +19,10 @@ import (
 // utilities.
 const OOB = "oob"
 
+var (
+	OAuthProxyURL = ""
+)
+
 // Consumer represents a website or application that uses the
 // OAuth 1.0a protocol to access protected resources on behalf
 // of a User.
@@ -72,6 +76,11 @@ func (c *Consumer) RequestToken() (*RequestToken, error) {
 		return nil, err
 	}
 
+	if OAuthProxyURL != "" {
+		req.Host = OAuthProxyURL
+		req.URL.Host = OAuthProxyURL
+	}
+
 	// make the http request and get the response
 	resp, err := http.DefaultClient.Do(&req)
 	if err != nil {
@@ -123,6 +132,11 @@ func (c *Consumer) AuthorizeToken(t *RequestToken, verifier string) (*AccessToke
 	err := c.SignParams(&req, t, map[string]string{"oauth_verifier": verifier})
 	if err != nil {
 		return nil, err
+	}
+
+	if OAuthProxyURL != "" {
+		req.Host = OAuthProxyURL
+		req.URL.Host = OAuthProxyURL
 	}
 
 	// make the http request and get the response
